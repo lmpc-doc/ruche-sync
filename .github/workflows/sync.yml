@@ -3,15 +3,38 @@ name: Sync ThingSpeak to Influx + CSV
 on:
   schedule:
     - cron: "*/30 * * * *"   # toutes les 30 minutes
-  workflow_dispatch:           # permet déclenchement manuel
+  workflow_dispatch:          # permet déclenchement manuel
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      # 1️⃣ Récupérer le repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ Installer Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: 3.11
-      - run: pip install influxdb-client requests
-      - run: python sync.py
+
+      # 3️⃣ Installer les dépendances
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install influxdb-client requests
+
+      # 4️⃣ Exécuter le script sync.py
+      - name: Run sync.py
+        run: python sync.py
+        env:
+          # Met tes infos en dur ou utilise des secrets GitHub
+          INFLUX_URL: "https://eu-central-1-1.aws.cloud2.influxdata.com"
+          INFLUX_TOKEN: "qYk5rh4LkrUWT2kuKCttkwt0hxSNSQpKIPc76bDrYivZX5s1p6qL3oAep94_SunSZfQg0GpiX2W36hWo-pxUvg=="
+          INFLUX_ORG: "SourisRose"
+          INFLUX_BUCKET: "Ruche1"
+          READ_API_KEY: "8527SWNRZ3QQLO1C"
+          CHANNEL_ID: "3216531"   # ton Channel ID ThingSpeak
+          CSV_FILE: "archive_ruche.csv"
