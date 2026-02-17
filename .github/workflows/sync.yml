@@ -30,7 +30,7 @@ jobs:
       - name: Run sync.py
         run: python sync.py
         env:
-          # Met tes infos en dur ou utilise des secrets GitHub
+          # Mets tes infos réelles ici ou utilise des secrets GitHub
           INFLUX_URL: "https://eu-central-1-1.aws.cloud2.influxdata.com"
           INFLUX_TOKEN: "qYk5rh4LkrUWT2kuKCttkwt0hxSNSQpKIPc76bDrYivZX5s1p6qL3oAep94_SunSZfQg0GpiX2W36hWo-pxUvg=="
           INFLUX_ORG: "SourisRose"
@@ -39,10 +39,9 @@ jobs:
           CHANNEL_ID: "3216531"   # ton Channel ID ThingSpeak
           CSV_FILE: "archive_ruche.csv"
 
-
-       - name: Upload CSV artifact
+      # 5️⃣ Sauvegarder le CSV en artifact
+      - name: Upload CSV artifact
         uses: actions/upload-artifact@v4
         with:
           name: archive_ruche
           path: archive_ruche.csv
-
