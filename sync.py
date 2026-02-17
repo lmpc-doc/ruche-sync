@@ -4,15 +4,19 @@ import csv
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 
 # --- ThingSpeak ---
-CHANNEL_ID = "3216531"       # Remplace par ton Channel ID
-READ_API_KEY = "8527SWNRZ3QQLO1C"        # Remplace par ta Read API Key securisé via github avec un secret
+READ_API_KEY = os.environ.get("READ_API_KEY")
+CHANNEL_ID = os.environ.get("CHANNEL_ID")
 
 # --- InfluxDB Cloud ---
-INFLUX_URL = "https://eu-central-1-1.aws.cloud2.influxdata.com"  # ton Cluster URL
-INFLUX_TOKEN = "qYk5rh4LkrUWT2kuKCttkwt0hxSNSQpKIPc76bDrYivZX5s1p6qL3oAep94_SunSZfQg0GpiX2W36hWo-pxUvg==" # Custom API Token Read/Write securisé via github avec un secret
-INFLUX_ORG = "SourisRose" # Nom de ton organisation
-INFLUX_BUCKET = "Ruche1" # Nom du bucket
-   
+INFLUX_URL = os.environ.get("INFLUX_URL") # ton Cluster URL
+INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN")
+INFLUX_ORG = os.environ.get("INFLUX_ORG")
+INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET")  # Nom du bucket
+
+CSV_FILE = os.environ.get("CSV_FILE", "archive_ruche.csv")
+
+print(f"DEBUG → INFLUX_BUCKET = {INFLUX_BUCKET}")
+print(f"DEBUG → CHANNEL_ID = {CHANNEL_ID}")   
 
 # --- CSV archive ---
 CSV_FILE = "archive_ruche.csv"
@@ -81,6 +85,7 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
             writer.writerow([timestamp, temp_int1, temp_int2, poids, temp_ext, humidite, pression])
 
 print("Sync ThingSpeak → InfluxDB + CSV terminé ✅")
+
 
 
 
