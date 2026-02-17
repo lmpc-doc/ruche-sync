@@ -9,7 +9,7 @@ READ_API_KEY = "8527SWNRZ3QQLO1C"      # Ta Read API Key
 print(f"DEBUG : READ_API_KEY = {READ_API_KEY}")
 
 # --- InfluxDB Cloud ---
-INFLUX_URL = https://eu-central-1-1.aws.cloud2.influxdata.com"  # ton Cluster URL
+INFLUX_URL = "https://eu-central-1-1.aws.cloud2.influxdata.com"  # ton Cluster URL
 INFLUX_TOKEN = "qYk5rh4LkrUWT2kuKCttkwt0hxSNSQpKIPc76bDrYivZX5s1p6qL3oAep94_SunSZfQg0GpiX2W36hWo-pxUvg=="      # Token InfluxDB
 INFLUX_ORG = "SourisRose"             # Nom de ton org
 INFLUX_BUCKET = "ruche1"      # Nom du bucket exact
@@ -79,3 +79,4 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
             writer.writerow([timestamp, temp_int1, temp_int2, poids, temp_ext, humidite, pression])
 
 print("Sync ThingSpeak → InfluxDB + CSV terminé ✅")
+
