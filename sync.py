@@ -21,7 +21,7 @@ CSV_FILE = "archive_ruche.csv"
 if not os.path.exists(CSV_FILE):
     with open(CSV_FILE, mode='w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["timestamp","temp_int1","temp_int2","poids","temp_ext","humidite","pression"])
+        writer.writerow(["test"])
 
 # --- Fonction pour convertir float safely ---
 def to_float(val):
@@ -53,6 +53,7 @@ with InfluxDBClient(url="INFLUX_URL", token="INFLUX_TOKEN", org="INFLUX_ORG") as
     write_api.write(bucket="Ruche1", record=point, write_precision=WritePrecision.NS)
 
 print("Test point écrit depuis GitHub ✅")
+
 
 
 
