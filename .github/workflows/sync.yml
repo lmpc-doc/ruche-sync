@@ -1,0 +1,17 @@
+name: Sync ThingSpeak to Influx + CSV
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # toutes les 30 minutes
+  workflow_dispatch:           # permet déclenchement manuel
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - run: pip install influxdb-client requests
+      - run: python sync.py
