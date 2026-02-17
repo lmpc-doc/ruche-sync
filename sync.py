@@ -1,7 +1,7 @@
 import os
 import requests
 import csv
-from influxdb_client import InfluxDBClient, Point, WritePrecision, WriteOptions
+from influxdb_client import InfluxDBClient, Point, WritePrecision
 
 # --- ThingSpeak ---
 CHANNEL_ID = "3216531"       # Remplace par ton Channel ID
@@ -48,7 +48,7 @@ if "feeds" not in data:
 
 # --- InfluxDB ---
 with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
-    write_api = client.write_api(write_options=WriteOptions(write_precision=WritePrecision.NS))
+    write_api = client.write_api()
 
     with open(CSV_FILE, mode='a', newline='') as csvfile:
         writer = csv.writer(csvfile)
@@ -71,11 +71,14 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
                 .field("humidite", float(humidite))
                 .field("pression", float(pression))
             )
-            write_api.write(bucket=INFLUX_BUCKET, record=point)
+            # Écriture dans InfluxDB avec précision NS
+            write_api.write(bucket=INFLUX_BUCKET, record=point, write_precision=WritePrecision.NS)
 
+            # Écriture dans CSV
             writer.writerow([timestamp, temp_int1, temp_int2, poids, temp_ext, humidite, pression])
 
 
 print("Sync ThingSpeak → InfluxDB + CSV terminé ✅")
+
 
 
