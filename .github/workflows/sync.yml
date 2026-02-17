@@ -15,7 +15,7 @@ jobs:
           python-version: 3.11
       - run: pip install influxdb-client requests
       - run: python sync.py
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: archive_ruche
           path: archive_ruche.csv
