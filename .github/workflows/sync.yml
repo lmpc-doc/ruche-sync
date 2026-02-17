@@ -38,3 +38,11 @@ jobs:
           READ_API_KEY: "8527SWNRZ3QQLO1C"
           CHANNEL_ID: "3216531"   # ton Channel ID ThingSpeak
           CSV_FILE: "archive_ruche.csv"
+
+
+       - name: Upload CSV artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive_ruche
+          path: archive_ruche.csv
+
