@@ -69,7 +69,7 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
 
             # --- Écriture dans InfluxDB ---
             point = (
-                Point("ruche1")  # measurement
+                Point("ruche")  # measurement
                 .time(timestamp)
                 .field("temp_int1", temp_int1)
                 .field("temp_int2", temp_int2)
@@ -85,6 +85,7 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
             writer.writerow([timestamp, temp_int1, temp_int2, poids, temp_ext, humidite, pression])
 
 print("Sync ThingSpeak → InfluxDB + CSV terminé ✅")
+
 
 
 
