@@ -35,12 +35,13 @@ jobs:
         run: python sync.py
         env:
           # Mets tes infos réelles ici ou utilise des secrets GitHub
-          INFLUX_URL: "https://eu-central-1-1.aws.cloud2.influxdata.com"
-          INFLUX_TOKEN: "qYk5rh4LkrUWT2kuKCttkwt0hxSNSQpKIPc76bDrYivZX5s1p6qL3oAep94_SunSZfQg0GpiX2W36hWo-pxUvg=="
-          INFLUX_ORG: "SourisRose"
-          INFLUX_BUCKET: "Ruche1"
-          READ_API_KEY: "8527SWNRZ3QQLO1C"
-          CHANNEL_ID: "3216531"   # ton Channel ID ThingSpeak
+          INFLUX_URL: ${{ secrets.INFLUX_URL }}
+          INFLUX_TOKEN: ${{ secrets.INFLUX_TOKEN }}
+          INFLUX_ORG: ${{ secrets.INFLUX_ORG }}
+          INFLUX_BUCKET: ${{ secrets.INFLUX_BUCKET }}
+          READ_API_KEY: ${{ secrets.READ_API_KEY }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+          
           CSV_FILE: "archive_ruche.csv"
 
       # 5️⃣ Sauvegarder le CSV en artifact
