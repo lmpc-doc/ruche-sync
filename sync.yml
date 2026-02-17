@@ -3,19 +3,50 @@ name: Sync ThingSpeak to Influx + CSV
 on:
   schedule:
     - cron: "*/30 * * * *"   # toutes les 30 minutes
-  workflow_dispatch:           # permet déclenchement manuel
+  workflow_dispatch:          # déclenchement manuel
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      # 1️⃣ Récupérer le repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ Installer Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: 3.11
-      - run: pip install influxdb-client requests
-      - run: python sync.py
-      - uses: actions/upload-artifact@v4
+
+      # 3️⃣ Installer les dépendances
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install influxdb-client requests
+
+      # 4️⃣ Vérifier que le CSV existe et créer dossier si nécessaire
+      - name: Prepare CSV
+        run: |
+          mkdir -p ${{ github.workspace }}
+          touch ${{ github.workspace }}/archive_ruche.csv
+
+      # 5️⃣ Lancer le script Python
+      - name: Run sync.py
+        run: |
+          python sync.py
+        env:
+          # Tu peux utiliser des secrets ici pour la prod
+          # INFLUX_URL: ${{ secrets.INFLUX_URL }}
+          # INFLUX_TOKEN: ${{ secrets.INFLUX_TOKEN }}
+          # INFLUX_ORG: ${{ secrets.INFLUX_ORG }}
+          # READ_API_KEY: ${{ secrets.TS_READ_API_KEY }}
+          # INFLUX_BUCKET: ${{ secrets.INFLUX_BUCKET }}
+      
+      # 6️⃣ Sauvegarder le CSV en artifact pour vérification
+      - name: Upload CSV artifact
+        uses: actions/upload-artifact@v4
         with:
           name: archive_ruche
-          path: archive_ruche.csv
+          path: ${{ github.workspace }}/archive_ruche.csv
