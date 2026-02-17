@@ -5,14 +5,14 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 
 # --- ThingSpeak ---
 CHANNEL_ID = "3216531"       # Remplace par ton Channel ID
-READ_API_KEY = "8527SWNRZ3QQLO1C"      # Ta Read API Key
-print(f"DEBUG : READ_API_KEY = {READ_API_KEY}")
+READ_API_KEY = "8527SWNRZ3QQLO1C"        # Remplace par ta Read API Key securisé via github avec un secret
 
 # --- InfluxDB Cloud ---
 INFLUX_URL = "https://eu-central-1-1.aws.cloud2.influxdata.com"  # ton Cluster URL
-INFLUX_TOKEN = "qYk5rh4LkrUWT2kuKCttkwt0hxSNSQpKIPc76bDrYivZX5s1p6qL3oAep94_SunSZfQg0GpiX2W36hWo-pxUvg=="      # Token InfluxDB
-INFLUX_ORG = "SourisRose"             # Nom de ton org
-INFLUX_BUCKET = "Ruche1"      # Nom du bucket exact
+INFLUX_TOKEN = "qYk5rh4LkrUWT2kuKCttkwt0hxSNSQpKIPc76bDrYivZX5s1p6qL3oAep94_SunSZfQg0GpiX2W36hWo-pxUvg==" # Custom API Token Read/Write securisé via github avec un secret
+INFLUX_ORG = "SourisRose" # Nom de ton organisation
+INFLUX_BUCKET = "Ruche1" # Nom du bucket
+   
 
 # --- CSV archive ---
 CSV_FILE = "archive_ruche.csv"
@@ -79,6 +79,7 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
 
 
 print("Sync ThingSpeak → InfluxDB + CSV terminé ✅")
+
 
 
 
