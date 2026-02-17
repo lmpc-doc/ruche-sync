@@ -21,7 +21,7 @@ CSV_FILE = "archive_ruche.csv"
 if not os.path.exists(CSV_FILE):
     with open(CSV_FILE, mode='w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["test"])
+        writer.writerow(["timestamp","temp_int1","temp_int2","poids","temp_ext","humidite","pression"])
 
 # --- Fonction pour convertir float safely ---
 def to_float(val):
@@ -34,7 +34,7 @@ def to_float(val):
 url = f"https://api.thingspeak.com/channels/{CHANNEL_ID}/feeds.json?api_key={READ_API_KEY}&results=200"
 r = requests.get(url)
 print(f"ThingSpeak status code: {r.status_code}")
-print(f"Preview response: {r.text[:200]}")
+print(f"Preview response: {r.text[:200]}")  # debug
 
 try:
     data = r.json()
@@ -46,19 +46,41 @@ if "feeds" not in data:
     print("Attention : aucune donnée reçue de ThingSpeak")
     data["feeds"] = []
 
-# --- InfluxDB ---
+# --- InfluxDB + CSV ---
 with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
     write_api = client.write_api()
-   
-    point = Point("ruche").field("test", 1.0)
-    print(f"DEBUG → écriture du point test dans bucket {INFLUX_BUCKET}")
-    write_api.write(bucket=INFLUX_BUCKET, record=point, write_precision=WritePrecision.NS)
-    print("DEBUG → point écrit ✅")
-    
 
-print("Test point écrit depuis GitHub ✅")
+    # Ouvrir CSV en mode ajout
+    with open(CSV_FILE, mode='a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
 
+        for feed in data["feeds"]:
+            timestamp = feed.get("created_at")
+            temp_int1 = to_float(feed.get("field1"))
+            temp_int2 = to_float(feed.get("field2"))
+            poids = to_float(feed.get("field3"))
+            temp_ext = to_float(feed.get("field4"))
+            humidite = to_float(feed.get("field5"))
+            pression = to_float(feed.get("field6"))
 
+            # --- Écriture dans InfluxDB ---
+            point = (
+                Point("ruche")  # measurement
+                .time(timestamp)
+                .field("temp_int1", temp_int1)
+                .field("temp_int2", temp_int2)
+                .field("poids", poids)
+                .field("temp_ext", temp_ext)
+                .field("humidite", humidite)
+                .field("pression", pression)
+            )
+            write_api.write(bucket=INFLUX_BUCKET, record=point, write_precision=WritePrecision.NS)
+            print(f"DEBUG → point écrit {timestamp} | temp1={temp_int1} | temp2={temp_int2} | poids={poids}")
+
+            # --- Écriture dans CSV ---
+            writer.writerow([timestamp, temp_int1, temp_int2, poids, temp_ext, humidite, pression])
+
+print("Sync ThingSpeak → InfluxDB + CSV terminé ✅")
 
 
 
