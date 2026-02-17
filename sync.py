@@ -20,7 +20,20 @@ CSV_FILE = "archive_ruche.csv"
 # --- Lire ThingSpeak ---
 url = f"https://api.thingspeak.com/channels/{CHANNEL_ID}/feeds.json?api_key={READ_API_KEY}&results=200"
 r = requests.get(url)
-data = r.json()
+
+print(f"ThingSpeak status code: {r.status_code}")
+print(f"Preview response: {r.text[:200]}")  # affiche les 200 premiers caractères pour debug
+
+try:
+    data = r.json()
+except ValueError:
+    print("Erreur : le retour de ThingSpeak n'est pas un JSON")
+    data = {"feeds": []}
+
+if "feeds" not in data:
+    print("Attention : aucune donnée reçue de ThingSpeak")
+    data["feeds"] = []
+
 
 # --- InfluxDB ---
 with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
@@ -54,3 +67,5 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
 
                 # --- Écrire dans CSV pour archive 4 ans ---
                 writer.writerow([timestamp, temp_int1, temp_int2, poids, temp_ext, humidite, pression])
+
+print("Sync ThingSpeak → InfluxDB + CSV terminé ✅")
