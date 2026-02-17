@@ -6,6 +6,7 @@ from influxdb_client import InfluxDBClient, Point
 # --- ThingSpeak ---
 CHANNEL_ID = "3216531"       # Remplace par ton Channel ID
 READ_API_KEY = READ_API_KEY = os.environ.get("THING_SPEAK_API_KEY")       # Remplace par ta Read API Key securisé via github avec un secret
+print(f"DEBUG : READ_API_KEY = {READ_API_KEY}")
 
 # --- InfluxDB Cloud ---
 INFLUX_URL = "https://eu-central-1-1.aws.cloud2.influxdata.com"  # ton Cluster URL
@@ -70,3 +71,4 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
 
 
 print("Sync ThingSpeak → InfluxDB + CSV terminé ✅")
+
