@@ -47,12 +47,13 @@ if "feeds" not in data:
     data["feeds"] = []
 
 # --- InfluxDB ---
-with InfluxDBClient(url="TON_URL", token="TON_TOKEN", org="TON_ORG") as client:
+with InfluxDBClient(url="INFLUX_URL", token="INFLUX_TOKEN", org="INFLUX_ORG") as client:
     write_api = client.write_api()
     point = Point("ruche").field("test", 1.0)
     write_api.write(bucket="Ruche1", record=point, write_precision=WritePrecision.NS)
 
 print("Test point écrit depuis GitHub ✅")
+
 
 
 
