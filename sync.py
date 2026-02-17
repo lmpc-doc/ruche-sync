@@ -1,7 +1,7 @@
 import os
 import requests
 import csv
-from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client import InfluxDBClient, Point, WritePrecision, WriteOptions
 
 # --- ThingSpeak ---
 CHANNEL_ID = "3216531"       # Remplace par ton Channel ID
@@ -48,9 +48,8 @@ if "feeds" not in data:
 
 # --- InfluxDB ---
 with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
-    write_api = client.write_api(write_options=WritePrecision.NS)
+    write_api = client.write_api(write_options=WriteOptions(write_precision=WritePrecision.NS))
 
-    # --- Ouvrir CSV en mode ajout ---
     with open(CSV_FILE, mode='a', newline='') as csvfile:
         writer = csv.writer(csvfile)
         for feed in data["feeds"]:
@@ -62,21 +61,21 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
             humidite = feed.get("field5")
             pression = feed.get("field6")
 
-            # --- Écrire dans InfluxDB ---
             point = (
                 Point("ruche")
-                .field("temp_int1", to_float(temp_int1))
-                .field("temp_int2", to_float(temp_int2))
-                .field("poids", to_float(poids))
-                .field("temp_ext", to_float(temp_ext))
-                .field("humidite", to_float(humidite))
-                .field("pression", to_float(pression))
                 .time(timestamp)
+                .field("temp_int1", float(temp_int1))
+                .field("temp_int2", float(temp_int2))
+                .field("poids", float(poids))
+                .field("temp_ext", float(temp_ext))
+                .field("humidite", float(humidite))
+                .field("pression", float(pression))
             )
             write_api.write(bucket=INFLUX_BUCKET, record=point)
 
-            # --- Écrire dans CSV pour archive ---
             writer.writerow([timestamp, temp_int1, temp_int2, poids, temp_ext, humidite, pression])
 
+
 print("Sync ThingSpeak → InfluxDB + CSV terminé ✅")
+
 
