@@ -9,6 +9,7 @@ from datetime import datetime
 READ_API_KEY = os.environ.get("READ_API_KEY")
 CHANNEL_ID = os.environ.get("CHANNEL_ID")
 
+
 INFLUX_URL = os.environ.get("INFLUX_URL")
 INFLUX_TOKEN = os.environ.get("INFLUX_TOKEN")
 INFLUX_ORG = os.environ.get("INFLUX_ORG")
@@ -108,3 +109,4 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
             ])
 
 print("Sync ruche terminé proprement ✅")
+
