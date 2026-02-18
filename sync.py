@@ -5,7 +5,7 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from datetime import datetime
 
-# --- Variables d'environnement (GitHub Secrets) ---
+# --- Variables ---
 READ_API_KEY = os.environ.get("READ_API_KEY")
 CHANNEL_ID = os.environ.get("CHANNEL_ID")
 
@@ -16,12 +16,16 @@ INFLUX_BUCKET = os.environ.get("INFLUX_BUCKET")
 
 CSV_FILE = "archive_ruche.csv"
 
-print(f"DEBUG → Bucket : {INFLUX_BUCKET}")
-print(f"DEBUG → Channel : {CHANNEL_ID}")
+# --- Conversion float ---
+def to_float(val):
+    try:
+        return float(val)
+    except:
+        return None
 
-# --- Création CSV si inexistant ---
+# --- Création CSV si absent ---
 if not os.path.exists(CSV_FILE):
-    with open(CSV_FILE, mode='w', newline='') as f:
+    with open(CSV_FILE, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([
             "timestamp",
@@ -33,32 +37,40 @@ if not os.path.exists(CSV_FILE):
             "pression"
         ])
 
-# --- Conversion float sécurisée ---
-def to_float(val):
-    try:
-        return float(val)
-    except:
-        return 0.0
+# --- Trouver dernière date enregistrée ---
+last_timestamp = None
+with open(CSV_FILE, "r") as f:
+    rows = list(csv.reader(f))
+    if len(rows) > 1:
+        last_timestamp = rows[-1][0]
 
-# --- Lecture ThingSpeak ---
-url = f"https://api.thingspeak.com/channels/{CHANNEL_ID}/feeds.json?api_key={READ_API_KEY}&results=50"
+print("Dernier timestamp connu :", last_timestamp)
+
+# --- Construire URL ThingSpeak ---
+if last_timestamp:
+    url = f"https://api.thingspeak.com/channels/{CHANNEL_ID}/feeds.json?api_key={READ_API_KEY}&start={last_timestamp}"
+else:
+    url = f"https://api.thingspeak.com/channels/{CHANNEL_ID}/feeds.json?api_key={READ_API_KEY}&results=50"
+
 r = requests.get(url)
 
 if r.status_code != 200:
     print("Erreur ThingSpeak :", r.status_code)
     exit()
 
-data = r.json()
-feeds = data.get("feeds", [])
+feeds = r.json().get("feeds", [])
+print(f"{len(feeds)} nouvelles mesures reçues")
 
-print(f"{len(feeds)} mesures reçues de ThingSpeak")
+if not feeds:
+    print("Aucune nouvelle donnée.")
+    exit()
 
-# --- Connexion InfluxDB ---
+# --- Envoi Influx ---
 with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
 
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
-    with open(CSV_FILE, mode='a', newline='') as f:
+    with open(CSV_FILE, "a", newline="") as f:
         writer = csv.writer(f)
 
         for feed in feeds:
@@ -72,7 +84,6 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
             humidite  = to_float(feed.get("field5"))
             pression  = to_float(feed.get("field6"))
 
-            # --- Point Influx ---
             point = (
                 Point("ruche")
                 .time(timestamp)
@@ -86,7 +97,6 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
 
             write_api.write(bucket=INFLUX_BUCKET, record=point)
 
-            # --- Archive CSV ---
             writer.writerow([
                 timestamp,
                 temp_int1,
@@ -97,4 +107,4 @@ with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as clien
                 pression
             ])
 
-print("Sync ruche terminé ✅")
+print("Sync ruche terminé proprement ✅")
